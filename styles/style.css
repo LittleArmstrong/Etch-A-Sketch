@@ -9,3 +9,19 @@ html {
    margin: 0;
    padding: 0;
 }
+
+main {
+   width: fit-content;
+   margin: 0 auto;
+}
+
+h1 {
+   text-align: center;
+}
+
+#sketch-container {
+   display: flex;
+   flex-wrap: wrap;
+   height: 700px;
+   width: 700px;
+}
