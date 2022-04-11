@@ -1,9 +1,9 @@
 import { $ } from "./toolbox.mjs";
 
 const sketch_container = $("sketch-container");
-const n_divs_row = 70;
-const n_divs = n_divs_row * n_divs_row;
-const sketch_size = 700;
+const n_divs_row = 60;
+const n_divs = n_divs_row * n_divs_row; //n_rows == n_columns
+const sketch_size = 600 - 4; //size + border in px
 const element_size = sketch_size / n_divs_row;
 
 for (let i = 0; i < n_divs; i++) {
@@ -16,4 +16,14 @@ for (let i = 0; i < n_divs; i++) {
 
 function paint_div(event) {
    event.target.style.backgroundColor = "black";
+}
+
+const clear_btn = $("clear-btn");
+clear_btn.addEventListener("click", clear_sketch);
+
+function clear_sketch(event) {
+   let divs = Array.from(document.querySelectorAll("#sketch-container>div"));
+   divs.forEach((node) => {
+      node.style.backgroundColor = "white";
+   });
 }
