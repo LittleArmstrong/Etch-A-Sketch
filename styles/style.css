@@ -25,15 +25,16 @@ h1 {
    margin-bottom: 2px;
 }
 
-#resolution-container {
+#grid-container {
    width: fit-content;
    margin: 0 auto;
    margin-bottom: 2px;
 }
 
-#resolution {
+#rows,
+#cols {
    width: 30px;
-   text-align: right;
+   text-align: center;
 }
 
 #sketch-container {
