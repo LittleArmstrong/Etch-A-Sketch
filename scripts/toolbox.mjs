@@ -34,10 +34,12 @@ export function assign_object(obj1, obj2, rules = null, strict = true, alt_obj =
                } else if (alt_obj !== null && alt_obj.hasOwnProperty(key)) {
                   obj1[key] = alt_obj[key];
                } else {
-                  throw `Invalid value '${value}' for key '${key}'! No default value found.`;
+                  throw new Error(
+                     `Invalid value '${value}' for key '${key}'! No default value found.`
+                  );
                }
             } else if (strict) {
-               throw `No validation rules for key '${key}' found!`;
+               throw new Error(`No validation rules for key '${key}' found!`);
             } else {
                obj1[key] = obj2[key];
             }
@@ -58,6 +60,38 @@ export function is_positive_num(value, include_zero = true) {
 export function is_positive_int(value, include_zero = true) {
    if (typeof value === "number") {
       return (value > 0 && value % 1 === 0) || (value === 0 && include_zero);
+   }
+   return false;
+}
+
+export function is_color(color) {
+   let div = document.createElement("div");
+   div.style.color = color;
+   if (div.style.color) {
+      return true;
+   }
+   return false;
+}
+
+export function is_in_range(value, min, max, include_limit = true) {
+   if (typeof value !== "number" || typeof min !== "number" || typeof max !== "number")
+      throw new Error("Value(s) not of type 'number'");
+   if (max < min) throw new Error("Max limit is smaller than min limit");
+   if (include_limit) {
+      if (value >= min && value <= max) {
+         return true;
+      }
+   } else {
+      if (value > min && value < max) {
+         return true;
+      }
+   }
+   return false;
+}
+
+export function is_node(node_selector) {
+   if ($(node_selector) !== null) {
+      return true;
    }
    return false;
 }
