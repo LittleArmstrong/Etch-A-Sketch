@@ -1,10 +1,7 @@
 import SketchWidget from "./sketch_widget.mjs";
 import { $, $all } from "./toolbox.mjs";
 
-const sketch_widget = new SketchWidget("#sketch-container");
-$("#clear-btn").addEventListener("click", () => {
-   sketch_widget.clear();
-});
+const sketch_widget = SketchWidget.init();
 
 // const sketch_container = $("#sketch-container");
 
