@@ -19,16 +19,10 @@ h1 {
    text-align: center;
 }
 
-#clear-btn {
-   display: block;
-   margin: 0 auto;
-   margin-bottom: 2px;
-}
-
 #grid-container {
    width: fit-content;
    margin: 0 auto;
-   margin-bottom: 2px;
+   margin-bottom: 4px;
 }
 
 #rows,
@@ -43,4 +37,8 @@ h1 {
    height: 600px;
    width: 600px;
    border: 2px black solid;
+}
+
+.invalid_input {
+   border-color: red;
 }

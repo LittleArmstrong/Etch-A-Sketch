@@ -30,14 +30,3 @@ export function get_random_int(max, min = 0) {
    max = Math.ceil(max);
    return Math.floor(Math.random() * (max - min + 1) + min);
 }
-
-/**
- * Checks if the given String is a valid CSS-Color
- * @param {String} color The color value to be tested
- * @returns true or false
- */
-export function is_color(color) {
-   let div = document.createElement("div");
-   div.style.color = color;
-   return div.style.color !== "";
-}

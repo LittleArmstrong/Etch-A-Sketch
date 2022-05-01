@@ -9,11 +9,12 @@
    <body>
       <main>
          <h1>Etch-A-Sketch</h1>
-         <button id="clear-btn">Clear</button>
          <div id="grid-container">
-            <input type="number" name="rows" id="rows" />
+            <input type="text" inputmode="numeric" name="rows" id="rows" />
             <span> x </span>
-            <input type="number" name="cols" id="cols" />
+            <input type="text" inputmode="numeric" name="cols" id="cols" />
+            <button id="resize-btn">Apply</button>
+            <button id="clear-btn">Clear</button>
          </div>
          <div id="sketch-container"></div>
       </main>
