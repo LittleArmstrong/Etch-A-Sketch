@@ -25,8 +25,7 @@ h1 {
    margin-bottom: 4px;
 }
 
-#rows,
-#cols {
+.grid-size-input {
    width: 30px;
    text-align: center;
 }
@@ -39,6 +38,6 @@ h1 {
    border: 2px black solid;
 }
 
-.invalid_input {
+.invalid-input {
    border-color: red;
 }

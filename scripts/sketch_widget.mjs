@@ -12,6 +12,7 @@ let panel_width, panel_height;
 let cells, n_cells;
 let cell_height, cell_width;
 let paint_color = "black";
+let is_painting = false;
 let grid_size = [60, 60]; //rows, cols; default value arbitrarily chosen
 
 const SketchWidget = {
@@ -36,11 +37,20 @@ const SketchWidget = {
    },
 
    bind_events() {
+      // allow painting only if mouse button is being pressed down
+      PANEL.addEventListener("mousedown", () => {
+         is_painting = true;
+      });
+      PANEL.addEventListener("mouseup", () => {
+         is_painting = false;
+      });
+
+      // add reize function to resize button ("Apply")
       RESIZE_BTN.addEventListener("click", () => {
          this.resize_grid();
       });
 
-      // add clear funtion to clear button
+      // add clear function to clear button ("Clear")
       CLEAR_BTN.addEventListener("click", () => {
          this.clear();
       });
@@ -52,7 +62,7 @@ const SketchWidget = {
 
       // check if grid size valid or bail
       let is_invalid_grid_size = new_grid_size.some((value) => {
-         return typeof value !== "number";
+         return typeof value !== "number" || isNaN(value);
       });
 
       if (is_invalid_grid_size) {
@@ -88,9 +98,9 @@ const SketchWidget = {
          cell.style.width = cell_width + "px";
          cell.style.height = cell_height + "px";
 
-         //allow painting
+         //allow painting only if mouse button is pressed and over cell
          cell.addEventListener("mouseover", (event) => {
-            event.target.style.backgroundColor = paint_color;
+            if (is_painting) event.target.style.backgroundColor = paint_color;
          });
 
          //put cell in panel

@@ -10,13 +10,13 @@
       <main>
          <h1>Etch-A-Sketch</h1>
          <div id="grid-container">
-            <input type="text" inputmode="numeric" name="rows" id="rows" />
+            <input type="text" inputmode="numeric" id="rows" name="rows" class="grid-size-input" />
             <span> x </span>
-            <input type="text" inputmode="numeric" name="cols" id="cols" />
+            <input type="text" inputmode="numeric" id="cols" name="cols" class="grid-size-input" />
             <button id="resize-btn">Apply</button>
             <button id="clear-btn">Clear</button>
          </div>
-         <div id="sketch-container"></div>
+         <div id="sketch-container" ondragstart="return false;" ondrop="return false;"></div>
       </main>
 
       <script type="module" src="scripts/main.js"></script>
