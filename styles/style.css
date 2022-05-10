@@ -38,6 +38,6 @@ h1 {
    border: 2px black solid;
 }
 
-.invalid-input {
+.invalid-number {
    border-color: red;
 }
