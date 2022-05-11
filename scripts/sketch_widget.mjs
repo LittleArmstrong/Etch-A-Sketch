@@ -38,12 +38,47 @@ function is_valid_number(value) {
    return typeof value === "number" && !isNaN(value);
 }
 
-function limit_number(number, min, max) {
+function limit_number(num, min, max) {
    return Math.min(Math.max(num, min), max);
 }
 
 function calc_cell_amount(cells_in_row, cells_in_col) {
    return cells_in_row * cells_in_col;
+}
+
+function create_cells(cell_amount, cell_size) {
+   return create_div_children(cell_amount, cell_size, CANVAS);
+}
+
+function create_div_children(child_amount, child_size, parent) {
+   for (let i = 0; i < child_amount; i++) {
+      //set child size
+      let child = document.createElement("div");
+      child.style.width = child_size.width + "px";
+      child.style.height = child_size.height + "px";
+
+      //put child to parent
+      parent.appendChild(child);
+   }
+   return parent;
+}
+
+function add_click_painting_to_canvas(parent) {
+   let settings = {
+      type: "mouseover",
+      func: (event) => {
+         if (is_painting) event.target.style.backgroundColor = paint_color;
+      },
+   };
+   add_event_to_children(parent, settings);
+}
+
+function add_event_to_children(parent, { type, func }) {
+   Array.from(parent.children).forEach((child) => {
+      child.addEventListener(type, (event) => {
+         func(event);
+      });
+   });
 }
 
 const SketchWidget = {
@@ -134,23 +169,14 @@ const SketchWidget = {
       let new_cell_amount = calc_cell_amount(new_cells_in_row, new_cells_in_col);
 
       //create new one
-      for (let i = 0; i < new_cell_amount; i++) {
-         //set cell size
-         let cell = document.createElement("div");
-         cell.style.width = cell_width + "px";
-         cell.style.height = cell_height + "px";
+      let canvas = create_cells(
+         new_cell_amount,
+         { height: new_cell_height, width: new_cell_width },
+         CANVAS
+      );
 
-         //allow painting only if mouse button is pressed and over cell
-         cell.addEventListener("mouseover", (event) => {
-            if (is_painting) event.target.style.backgroundColor = paint_color;
-         });
-
-         //put cell in panel
-         CANVAS.appendChild(cell);
-      }
-
-      //save reference to all cells
-      cells = $all(CANVAS_SELECTOR + ">div");
+      //allow painting only if mouse button is pressed and over cell
+      add_click_painting_to_canvas(canvas);
 
       //put actual grid size in the input field
       CELLS_IN_ROW_INPUT.value = grid_size[0];
