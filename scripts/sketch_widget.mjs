@@ -195,3 +195,40 @@ const SketchWidget = {
 };
 
 export default SketchWidget;
+
+class FSM {
+   //precondition:
+   // transitions = {state1: {event_1: [next_state, function], event_2: ..., default: ...}, state2: ...
+   // -> states and events are strings
+   // -> every state should have a default event (optional?)
+   // initial_state is in transitions.keys()
+   //
+   //postcondition:
+   // object.transitions = transitions
+   // object.state = initial_state
+   constructor(transitions, initial_state) {
+      this.transitions = transitions;
+      this.state = initial_state;
+   }
+
+   //precondition:
+   // event is string and present in one state
+   //
+   //postcondition:
+   // next_state is string and present in transitions
+   // action is a function
+   accept(event) {
+      let action;
+      return ([this.state, action] =
+         this.transitions[this.state][event] || this.transitions[this.state]["default"]);
+   }
+}
+
+let transitions = {
+   state1: { event1: ["state2", () => console.log("state1")] },
+   state2: { event2: ["state1", () => console.log("state2")] },
+};
+let fsm = new FSM(transitions, "state1");
+let [next_state, action] = fsm.accept("event1");
+console.log(next_state);
+action();
