@@ -2,104 +2,47 @@ import { $ } from "./toolbox.mjs";
 
 const canvas = {
    node: "#sketch-container",
-   get height() {
-      return this.node.clientHeight - 2 * this.node.style.borderWidth;
-   },
-   get width() {
-      return this.node.clientWidth - 2 * this.node.style.borderWidth;
-   },
    set_to_border_box() {
       this.node.setAttribute("box-sizing", "border-box");
    },
-   validate_height(height) {
-      if (height / this.cells_in_height.limit[1] < this.cells_in_height.min_size)
-         return error("Invalid size");
-      return ok(size);
-   },
-   validate_width(width) {
-      if (width / this.cells_in_width.limit[1] < this.cells_in_width.min_size)
-         return error("Invalid size");
-      return ok(size);
-   },
    get size() {
-      return { height: this.height, width: this.width };
+      const height = this.node.clientHeight - 2 * this.node.style.borderWidth;
+      const width = this.node.clientWidth - 2 * this.node.style.borderWidth;
+      return { height: height, width: width };
    },
    validate_size({ width, height }) {
-      const [status_width, result_width] = this.validate_width(width);
-      const [status_height, result_height] = this.validate_height(height);
-      if (status_height == "ok" && status_width == "ok")
-         return ok({ width: result_width, height: result_height });
-      else return error("Invalid size");
+      const min_height = this.resolution.min_size.height * this.resolution.limit.height[1];
+      const min_width = this.resolution.min_size.width * this.resolution.limit.width[1];
+      if (height < min_height || width < min_width) return error("Invalid size");
+      return ok({ width: width, height: height });
    },
-   cells_in_width: {
-      IO: $("#cols"),
-      get as_number() {
-         return Number(this.IO.value);
+   resolution: {
+      IO: { width: $("#cols"), height: $("#rows") },
+      get value() {
+         const width = Number(this.IO.width.value);
+         const height = Number(this.IO.height.value);
+         return { width: width, height: height };
       },
-      validate(amount) {
-         if (!Number.isInteger(amount)) return error("Not an integer");
-         if (amount < this.limit[0] || amount > this.limit[1]) return error("Not in range");
-         return ok(amount);
+      validate({ width, height }) {
+         if (!Number.isInteger(width) || !Number.isInteger(height)) return error("Invalid type");
+         const width_is_in_range = width >= this.limit.width[0] && width <= this.limit.width[1];
+         const height_is_in_range =
+            height >= this.limit.height[0] && height <= this.limit.height[1];
+         if (!width_is_in_range || !height_is_in_range) return error("Value out of range");
+         return ok({ width: width, height: height });
       },
-      set(amount) {
-         let [status, result] = this.validate(amount);
-         switch (status) {
-            case "ok":
-               this.IO.value = result;
-               return [status, result];
-            case "error":
-               return [status, result];
-            default:
-               throw new Error("Invalid case");
-         }
+      set({ width, height }) {
+         this.IO.height.value = height;
+         this.IO.width.value = width;
       },
       set_default() {
          this.set(this.default);
       },
-      min_size: 1,
-      limit: [1, 100],
-      default: 60,
+      limit: { width: [1, 100], height: [1, 100] },
+      min_size: { width: 1, height: 1 },
+      default: { width: 60, height: 60 },
    },
-   cells_in_height: {
-      IO: $("#rows"),
-      get as_number() {
-         return Number(this.IO.value);
-      },
-      validate(amount) {
-         if (!Number.isInteger(amount)) return error("Not an integer");
-         if (amount < this.limit[0] || amount > this.limit[1]) return error("Not in range");
-         return ok(amount);
-      },
-      set(amount) {
-         let [status, result] = this.validate(amount);
-         switch (status) {
-            case "ok":
-               this.IO.value = result;
-               return [status, result];
-            case "error":
-               return [status, result];
-            default:
-               throw new Error("Invalid case");
-         }
-      },
-      set_default() {
-         this.set(this.default);
-      },
-      min_size: 1,
-      limit: [1, 100],
-      default: 60,
-   },
-   get resolution() {
-      return { width: this.cells_in_width.as_number, height: this.cells_in_height.as_number };
-   },
-   validate_resolution({ width, height }) {
-      const [status_width, result_width] = this.cells_in_width.validate(width);
-      const [status_height, result_height] = this.cells_in_height.validate(height);
-      if (status_height == "ok" && status_width == "ok")
-         return ok({ width: result_width, height: result_height });
-      else return error("Invalid size");
-   },
-   set_resolution(grid) {
+   change_resolution(grid) {
       this.node.replaceChildren(...grid.children);
    },
 };
@@ -116,8 +59,8 @@ let is_painting = false;
 const SketchWidget = {
    init() {
       //put default grid size in the input field
-      canvas.cells_in_height.set_default();
-      canvas.cells_in_width.set_default();
+      canvas.resolution.set_default();
+      //console.log(canvas.resolution.value);
 
       // //create grid
       // set_resolution();
