@@ -1,5 +1,4 @@
 import SketchWidget from "./sketch_widget.mjs";
-import { $, $all } from "./toolbox.mjs";
 
 const sketch_widget = SketchWidget.init();
 
