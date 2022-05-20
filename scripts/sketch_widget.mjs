@@ -1,165 +1,167 @@
 import { $ } from "./toolbox.mjs";
 
-const canvas = {
-   node: $("#sketch-container"),
-   set_to_border_box() {
-      this.node.setAttribute("box-sizing", "border-box");
-   },
-   get size() {
-      const height = this.node.clientHeight - 2 * this.node.style.borderWidth;
-      const width = this.node.clientWidth - 2 * this.node.style.borderWidth;
-      return { height: height, width: width };
-   },
-   get_validated_size() {
-      return this.validate_size(this.size);
-   },
-
-   validate_size({ width, height }) {
-      const min_height =
-         this.resolution_settings.min_size.height * this.resolution_settings.limit.height[1];
-      const min_width =
-         this.resolution_settings.min_size.width * this.resolution_settings.limit.width[1];
-      if (height < min_height || width < min_width) return error("Invalid size");
-      return ok({ width: width, height: height });
-   },
-   resolution_settings: {
-      IO: { width: $("#cols"), height: $("#rows") },
-      apply_button: $("#resize-btn"),
-      limit: { width: [1, 100], height: [1, 100] },
-      min_size: { width: 1, height: 1 },
-      default: { width: 60, height: 60 },
-      invalid_input_class: "invalid-number",
-   },
-   change_resolution(grid) {
-      this.node.replaceChildren(...grid.children);
-   },
-   validate_resolution({ width, height }) {
-      if (!Number.isInteger(width) || !Number.isInteger(height)) return error("Invalid type");
-      const width_in_range =
-         width >= this.resolution_settings.limit.width[0] &&
-         width <= this.resolution_settings.limit.width[1];
-      const height_in_range =
-         height >= this.resolution_settings.limit.height[0] &&
-         height <= this.resolution_settings.limit.height[1];
-      if (!width_in_range || !height_in_range) return error("Value out of range");
-      return ok({ width: width, height: height });
-   },
-   read_resolution() {
-      const width = Number(this.resolution_settings.IO.width.value);
-      const height = Number(this.resolution_settings.IO.height.value);
-      return { width: width, height: height };
-   },
-   read_validated_resolution() {
-      return this.validate_resolution(this.read_resolution());
-   },
-   write_resolution({ width, height }) {
-      this.resolution_settings.IO.height.value = height;
-      this.resolution_settings.IO.width.value = width;
-   },
-   write_default_resolution() {
-      this.write_resolution(this.resolution_settings.default);
-   },
-   show_valid_resolution_input() {
-      this.resolution_settings.IO.width.classList.remove(
-         this.resolution_settings.invalid_input_class
-      );
-      this.resolution_settings.IO.height.classList.remove(
-         this.resolution_settings.invalid_input_class
-      );
-   },
-   show_invalid_resolution_input() {
-      this.resolution_settings.IO.width.classList.add(this.resolution_settings.invalid_input_class);
-      this.resolution_settings.IO.height.classList.add(
-         this.resolution_settings.invalid_input_class
-      );
-   },
-   paint_settings: {
-      color: "black",
-      is_active: false,
-   },
-   add_paint_function() {
-      Array.from(this.node.children).forEach((cell) => {
-         cell.addEventListener("mouseover", (event) => {
-            if (this.paint_settings.is_active)
-               event.target.style.backgroundColor = this.paint_settings.color;
-         });
-      });
-   },
-   clear_settings: {
-      button: $("#clear-btn"),
-      color: "white",
-   },
-   clear() {
-      Array.from(this.node.children).forEach((cell) => {
-         cell.style.backgroundColor = this.clear_settings.color;
-      });
-   },
-   bind_events() {
-      // allow painting only if mouse button is being pressed down
-      this.node.addEventListener("mousedown", () => {
-         this.paint_settings.is_active = true;
-      });
-      canvas.node.addEventListener("mouseup", () => {
-         this.paint_settings.is_active = false;
-      });
-
-      // add reize function to resize button ("Apply")
-      this.resolution_settings.apply_button.addEventListener("click", () => {
-         set_resolution();
-      });
-
-      // add clear function to clear button ("Clear")
-      this.clear_settings.button.addEventListener("click", () => {
-         this.clear();
-      });
-   },
+const canvas_node = $("#sketch-container");
+const resolution_IO = { width: $("#cols"), height: $("#rows") };
+const change_resolution_btn = $("#resize-btn");
+const invalid_resolution_input_css_class = "invalid-number";
+const resolution_settings = {
+   limits: { width: [1, 100], height: [1, 100] },
+   min_size: { width: 1, height: 1 },
+   default: { width: 60, height: 60 },
 };
+const paint_color = "black";
+const clear_btn = $("#clear-btn");
+const clear_color = "white";
 
-// validation
+let is_painting = false;
 
 const SketchWidget = {
    init() {
-      canvas.bind_events();
-
-      canvas.set_to_border_box();
-      canvas.write_default_resolution();
-      set_resolution();
-
+      bind_events();
+      set_to_border_box(canvas_node);
+      write_to_resolution_field(resolution_settings.default);
+      change_resolution();
       return this;
    },
 };
 
-function set_resolution() {
-   const [canvas_size_status, canvas_size] = canvas.get_validated_size();
+function bind_events() {
+   // allow painting only if mouse button is being pressed down
+   canvas_node.addEventListener("mousedown", () => {
+      is_painting = true;
+   });
+   canvas_node.addEventListener("mouseup", () => {
+      is_painting = false;
+   });
+
+   // add reize function to resize button ("Apply")
+   change_resolution_btn.addEventListener("click", () => {
+      change_resolution();
+   });
+
+   // add clear function to clear button ("Clear")
+   clear_btn.addEventListener("click", () => {
+      clear();
+   });
+}
+
+function set_to_border_box(node) {
+   node.setAttribute("box-sizing", "border-box");
+}
+
+function write_to_resolution_field({ width, height }) {
+   write_to_field(height, resolution_IO.height);
+   write_to_field(width, resolution_IO.width);
+}
+
+function write_to_field(value, field) {
+   return (field.value = value);
+}
+
+function change_resolution() {
+   const canvas_size = get_true_node_size(canvas_node);
+   const [canvas_size_status, canvas_size_result] = validate_canvas_size(canvas_size);
    switch (canvas_size_status) {
       case "ok":
          break;
       case "error":
-         return error(canvas_size);
+         return error(canvas_size_result);
       default:
          throw new Error("Invalid case");
    }
 
-   const [resolution_status, resolution] = canvas.read_validated_resolution();
+   const resolution = read_from_resolution_field();
+   const [resolution_status, resolution_result] = validate_resolution(resolution);
    switch (resolution_status) {
       case "ok":
-         canvas.show_valid_resolution_input();
+         show_valid_resolution_input();
          break;
       case "error":
-         canvas.show_invalid_resolution_input();
-         return error(resolution);
+         show_invalid_resolution_input();
+         return error(resolution_result);
       default:
          throw new Error("Invalid case");
    }
-
-   const cell_size = calc_cell_size(resolution, canvas_size);
-
-   const cell_amount = calc_cell_amount(resolution);
-
+   const cell_amount = calc_cell_amount(resolution_result);
+   const cell_size = calc_cell_size(resolution_result, canvas_size);
    const grid = create_grid(cell_amount, cell_size);
+   set_resolution(grid);
+   add_paint_function_to_canvas();
+}
 
-   canvas.change_resolution(grid);
-   canvas.add_paint_function();
+function get_true_node_size(node) {
+   const height = node.clientHeight - 2 * node.style.borderWidth;
+   const width = node.clientWidth - 2 * node.style.borderWidth;
+   return { height: height, width: width };
+}
+
+function validate_canvas_size({ width, height }) {
+   const min_canvas = calc_min_canvas_size(
+      resolution_settings.min_size,
+      resolution_settings.limits
+   );
+   if (width < min_canvas.width || height < min_canvas.height) return error("Invalid size");
+   return ok({ width: width, height: height });
+}
+
+function calc_min_canvas_size(min_cell_size, resolution_limits) {
+   const min_canvas = {};
+   min_canvas.width = min_cell_size.width * resolution_limits.width[1];
+   min_canvas.height = min_cell_size.height * resolution_limits.height[1];
+   return min_canvas;
+}
+
+function read_from_resolution_field() {
+   const width = read_from_field_as_number(resolution_IO.width);
+   const height = read_from_field_as_number(resolution_IO.height);
+   return { width: width, height: height };
+}
+
+function read_from_field_as_number(field) {
+   return Number(field.value);
+}
+
+function numbers_are_integer(numbers) {
+   Object.values(numbers).forEach((number) => {
+      if (!Number.isInteger(number)) return false;
+   });
+   return true;
+}
+
+function numbers_are_in_range(numbers, limits) {
+   Object.entries(numbers).forEach(([key, value]) => {
+      if (value < limits[key][0] || value > limits[key][1]) return false;
+   });
+   return true;
+}
+
+function validate_resolution(resolution) {
+   if (
+      !numbers_are_integer(resolution) ||
+      !numbers_are_in_range(resolution, resolution_settings.limits)
+   )
+      return error("Invalid resolution");
+   return ok(resolution);
+}
+
+function show_valid_resolution_input() {
+   resolution_IO.width.classList.remove(invalid_resolution_input_css_class);
+   resolution_IO.height.classList.remove(invalid_resolution_input_css_class);
+}
+function show_invalid_resolution_input() {
+   resolution_IO.width.classList.add(invalid_resolution_input_css_class);
+   resolution_IO.height.classList.add(invalid_resolution_input_css_class);
+}
+
+function calc_cell_amount({ width, height }) {
+   return width * height;
+}
+
+function calc_cell_size(resolution, canvas_size) {
+   const cell_size = {};
+   cell_size.width = canvas_size.width / resolution.width;
+   cell_size.height = canvas_size.height / resolution.height;
+   return cell_size;
 }
 
 function create_grid(cell_amount, cell_size) {
@@ -175,15 +177,22 @@ function create_grid(cell_amount, cell_size) {
    return grid;
 }
 
-function calc_cell_size(resolution, canvas_size) {
-   const cell_size = {};
-   cell_size.width = canvas_size.width / resolution.width;
-   cell_size.height = canvas_size.height / resolution.height;
-   return cell_size;
+function set_resolution(grid) {
+   canvas_node.replaceChildren(...grid.children);
 }
 
-function calc_cell_amount(cells_in) {
-   return cells_in.width * cells_in.height;
+function add_paint_function_to_canvas() {
+   Array.from(canvas_node.children).forEach((cell) => {
+      cell.addEventListener("mouseover", (event) => {
+         if (is_painting) event.target.style.backgroundColor = paint_color;
+      });
+   });
+}
+
+function clear() {
+   Array.from(canvas_node.children).forEach((cell) => {
+      cell.style.backgroundColor = clear_color;
+   });
 }
 
 function ok(result) {
