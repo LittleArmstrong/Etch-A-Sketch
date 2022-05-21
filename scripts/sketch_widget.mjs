@@ -21,7 +21,7 @@ const resolution_height = {
  * - Create resolution grid
  * - Allow painting
  */
-export function init_SketchWidget() {
+export default function SketchWidget() {
    bind_events();
    set_to_border_box(canvas_node);
    write_to_resolution_field(resolution_width.default, resolution_height.default);
@@ -40,8 +40,9 @@ let is_painting = false;
  */
 function bind_events() {
    // allow painting only if mouse button is being pressed down
-   canvas_node.addEventListener("mousedown", () => {
+   canvas_node.addEventListener("mousedown", (event) => {
       is_painting = true;
+      event.target.style.backgroundColor = paint_color;
    });
    canvas_node.addEventListener("mouseup", () => {
       is_painting = false;
@@ -170,8 +171,8 @@ function validate_canvas_size({ width, height }) {
  */
 
 function calc_min_canvas_size() {
-   const width = calc_min_dim(width_settings.min_size, width_settings.limit[1]);
-   const height = calc_min_dim(height_settings.min_size, height_settings.limit[1]);
+   const width = calc_min_dim(resolution_width.min_size, resolution_width.limit[1]);
+   const height = calc_min_dim(resolution_height.min_size, resolution_height.limit[1]);
    return { min_width: width, min_height: height };
 }
 
