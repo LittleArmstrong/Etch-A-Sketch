@@ -2,13 +2,13 @@ import { $ } from "./toolbox.mjs";
 
 const canvas_node = $("#canvas");
 const resolution_width = {
-   IO: $("#cols"),
+   IO: $("#res-width"),
    limit: [1, 100],
    min_size: 1,
    default: 60,
 };
 const resolution_height = {
-   IO: $("#rows"),
+   IO: $("#res-height"),
    limit: [1, 100],
    min_size: 1,
    default: 60,
@@ -39,6 +39,7 @@ let paint_color = "black";
  * - Clicking on canvas for painting
  * - Clicking on clear button to clear canvas
  * - Clicking on resolution button to change resolution
+ * - Input change on color picker to change paint color
  */
 function bind_events() {
    // allow painting only if mouse button is being pressed down

@@ -13,10 +13,6 @@ html {
    padding: 0;
 }
 
-:root {
-   --side-menu-width: 150px;
-}
-
 /* ==========================================================================
    Main Content
    ========================================================================== */
@@ -36,16 +32,45 @@ h1 {
    text-align: center;
 }
 
+/* Container of canvas and toolbars */
+.canvas-container {
+   display: flex;
+}
+
+/* ==========================================================================
+   Canvas
+   ========================================================================== */
+/*
+   Canvas made up of div elements as cells.
+
+   Set the size of the canvas and allow automatic placing of the cells with flex-wrap.
+*/
+.canvas {
+   border: 2px black solid;
+   display: flex;
+   flex-wrap: wrap;
+   height: 600px;
+   width: 600px;
+}
+
+/* ==========================================================================
+   Toolbars
+   ========================================================================== */
+/* Same width for side toolbars for symmetry */
+.side-toolbar {
+   width: 150px;
+}
+
 /*	Toolbar up
    ========================================================================== */
 /* Center upper toolbar.
    
    Containts the elements to change resolution and clear the canvas.     
 */
-#toolbar-up {
-   width: fit-content;
+.toolbar-up {
    margin: 0 auto;
    margin-bottom: 4px;
+   width: fit-content;
 }
 
 /*	Resolution input	*/
@@ -54,37 +79,10 @@ h1 {
    width: 30px;
 }
 
-/*	Canvas & menu container
+/*	Toolbar left
    ========================================================================== */
-
-#canvas-container {
-   display: flex;
-}
-
-/*	Canvas
-   ========================================================================== */
-/*
-   Canvas made up of div elements as cells.
-
-   Set the size of the canvas and allow automatic placing of the cells with flex-wrap.
-*/
-#canvas {
-   border: 2px black solid;
-   display: flex;
-   flex-wrap: wrap;
-   height: 600px;
-   width: 600px;
-}
-
-/*	Menu left
-   ========================================================================== */
-/*	Same width between both menus	*/
-#menu-left {
-   width: var(--side-menu-width);
-}
-
 /*	Input for color */
-#color-picker {
+.color-picker {
    border-width: 1px;
    background-color: white;
    display: block;
@@ -93,17 +91,59 @@ h1 {
    height: 75px;
 }
 
-/*	Menu right
+/* ==========================================================================
+   Others
    ========================================================================== */
-/*	Same width between both menus	*/
-#menu-right {
-   width: var(--side-menu-width);
+
+.fit-content {
+   width: fit-content;
 }
 
-/* ==========================================================================
-   Validation
+.center {
+   margin: 0 auto;
+}
+
+/*	Invalid Input
    ========================================================================== */
+
 /*	Red border for invalid input	*/
 input.invalid-input {
    border-color: red;
+   outline-width: 1px;
+   outline-color: red;
+}
+
+/*	Radio buttons
+   ========================================================================== */
+
+/* Remove the buttons */
+.toggle-buttons {
+   appearance: none;
+}
+
+/* Make the labels look like buttons */
+
+.toggle-buttons + label {
+   background-color: rgb(230, 230, 230);
+   border: 1px solid #333;
+   display: inline-block;
+   margin: 0 auto;
+   margin-bottom: 10px;
+   padding: 5px;
+   text-align: center;
+   width: 75px;
+}
+
+/* Outline the checked option */
+.toggle-buttons:checked + label {
+   outline: 1px solid rgb(0, 128, 109);
+   font-weight: bold;
+}
+
+/*	Hover action
+   ========================================================================== */
+
+.transform:hover {
+   transform: scale(1.2);
+   transition-duration: 120ms;
 }

@@ -9,23 +9,55 @@
    <body>
       <main>
          <h1>Etch-A-Sketch</h1>
-         <div id="toolbar-up">
-            <input type="text" inputmode="numeric" id="rows" name="rows" class="resolution-input" />
+         <div class="toolbar-up">
+            <input
+               type="text"
+               inputmode="numeric"
+               id="res-height"
+               name="rows"
+               class="resolution-input"
+            />
             <span> x </span>
-            <input type="text" inputmode="numeric" id="cols" name="cols" class="resolution-input" />
+            <input
+               type="text"
+               inputmode="numeric"
+               id="res-width"
+               name="cols"
+               class="resolution-input"
+            />
             <button id="resolution-btn">Apply</button>
             <button id="clear-btn">Clear</button>
          </div>
 
-         <div id="canvas-container">
-            <div id="menu-left">
-               <input id="color-picker" type="color" />
+         <div class="canvas-container">
+            <div class="side-toolbar">
+               <input class="color-picker transform" id="color-picker" type="color" />
+
+               <div class="fit-content center">
+                  <input
+                     type="radio"
+                     id="paint-normal"
+                     class="toggle-buttons"
+                     name="paint-mode"
+                     checked
+                  />
+                  <label for="paint-normal" class="vertical-rb transform">Normal</label>
+               </div>
+
+               <div class="fit-content center">
+                  <input type="radio" id="paint-rainbow" class="toggle-buttons" name="paint-mode" />
+                  <label for="paint-rainbow" class="vertical-rb transform">Rainbow</label>
+               </div>
             </div>
-            <div id="canvas" ondragstart="return false;" ondrop="return false;"></div>
-            <div id="menu-right"></div>
+            <div
+               class="canvas"
+               id="canvas"
+               ondragstart="return false;"
+               ondrop="return false;"
+            ></div>
+            <div class="side-toolbar"></div>
          </div>
       </main>
-
       <script type="module" src="scripts/main.js"></script>
    </body>
 </html>
