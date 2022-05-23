@@ -1,6 +1,6 @@
 import { $ } from "./toolbox.mjs";
 
-const canvas_node = $("#sketch-container");
+const canvas_node = $("#canvas");
 const resolution_width = {
    IO: $("#cols"),
    limit: [1, 100],
@@ -28,10 +28,12 @@ export default function SketchWidget() {
    change_resolution();
 }
 
-const resolution_btn = $("#resize-btn");
+const resolution_btn = $("#resolution-btn");
 const clear_btn = $("#clear-btn");
+const color_picker = $("#color-picker");
 
 let is_painting = false;
+let paint_color = "black";
 /**
  * Add all necessary events to the specified nodes.
  * - Clicking on canvas for painting
@@ -56,6 +58,11 @@ function bind_events() {
    // add clear function to clear button ("Clear")
    clear_btn.addEventListener("click", () => {
       clear();
+   });
+
+   // change color through color picker
+   color_picker.addEventListener("input", (event) => {
+      paint_color = event.target.value;
    });
 }
 
@@ -225,7 +232,7 @@ function validate_resolution({ width, height }) {
    return ok({ width, height });
 }
 
-const invalid_resolution_input_css_class = "invalid-number";
+const invalid_resolution_input_css_class = "invalid-input";
 /**
  * Remove the CSS class that adds red borders from the resolution input field
  */
@@ -294,7 +301,6 @@ function set_resolution(grid) {
    canvas_node.replaceChildren(...grid.children);
 }
 
-const paint_color = "black";
 /**
  * Allow the painting on click over the canvas
  */

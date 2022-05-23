@@ -9,14 +9,21 @@
    <body>
       <main>
          <h1>Etch-A-Sketch</h1>
-         <div id="grid-container">
-            <input type="text" inputmode="numeric" id="rows" name="rows" class="grid-size-input" />
+         <div id="toolbar-up">
+            <input type="text" inputmode="numeric" id="rows" name="rows" class="resolution-input" />
             <span> x </span>
-            <input type="text" inputmode="numeric" id="cols" name="cols" class="grid-size-input" />
-            <button id="resize-btn">Apply</button>
+            <input type="text" inputmode="numeric" id="cols" name="cols" class="resolution-input" />
+            <button id="resolution-btn">Apply</button>
             <button id="clear-btn">Clear</button>
          </div>
-         <div id="sketch-container" ondragstart="return false;" ondrop="return false;"></div>
+
+         <div id="canvas-container">
+            <div id="menu-left">
+               <input id="color-picker" type="color" />
+            </div>
+            <div id="canvas" ondragstart="return false;" ondrop="return false;"></div>
+            <div id="menu-right"></div>
+         </div>
       </main>
 
       <script type="module" src="scripts/main.js"></script>

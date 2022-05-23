@@ -1,3 +1,6 @@
+/* ==========================================================================
+   Default values & variables
+   ========================================================================== */
 html {
    box-sizing: border-box;
 }
@@ -10,34 +13,97 @@ html {
    padding: 0;
 }
 
-main {
-   width: fit-content;
-   margin: 0 auto;
+:root {
+   --side-menu-width: 150px;
 }
 
+/* ==========================================================================
+   Main Content
+   ========================================================================== */
+/*
+   Wrap everything and center it.
+
+   Use fit-content, so that width equals the content and not of the heading that
+   takes the whole display width.
+*/
+main {
+   margin: 0 auto;
+   width: fit-content;
+}
+
+/*	Center the heading	*/
 h1 {
    text-align: center;
 }
 
-#grid-container {
+/*	Toolbar up
+   ========================================================================== */
+/* Center upper toolbar.
+   
+   Containts the elements to change resolution and clear the canvas.     
+*/
+#toolbar-up {
    width: fit-content;
    margin: 0 auto;
    margin-bottom: 4px;
 }
 
-.grid-size-input {
-   width: 30px;
+/*	Resolution input	*/
+.resolution-input {
    text-align: center;
+   width: 30px;
 }
 
-#sketch-container {
+/*	Canvas & menu container
+   ========================================================================== */
+
+#canvas-container {
+   display: flex;
+}
+
+/*	Canvas
+   ========================================================================== */
+/*
+   Canvas made up of div elements as cells.
+
+   Set the size of the canvas and allow automatic placing of the cells with flex-wrap.
+*/
+#canvas {
+   border: 2px black solid;
    display: flex;
    flex-wrap: wrap;
    height: 600px;
    width: 600px;
-   border: 2px black solid;
 }
 
-.invalid-number {
+/*	Menu left
+   ========================================================================== */
+/*	Same width between both menus	*/
+#menu-left {
+   width: var(--side-menu-width);
+}
+
+/*	Input for color */
+#color-picker {
+   border-width: 1px;
+   background-color: white;
+   display: block;
+   margin: 20px auto;
+   width: 75px;
+   height: 75px;
+}
+
+/*	Menu right
+   ========================================================================== */
+/*	Same width between both menus	*/
+#menu-right {
+   width: var(--side-menu-width);
+}
+
+/* ==========================================================================
+   Validation
+   ========================================================================== */
+/*	Red border for invalid input	*/
+input.invalid-input {
    border-color: red;
 }
