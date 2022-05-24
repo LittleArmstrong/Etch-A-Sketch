@@ -31,20 +31,27 @@ export default function SketchWidget() {
 const resolution_btn = $("#resolution-btn");
 const clear_btn = $("#clear-btn");
 const color_picker = $("#color-picker");
+const normal_mode_choice = $("#normal-mode");
+const rainbow_mode_choice = $("#rainbow-mode");
+const rainbow_color = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
 
 let is_painting = false;
 let paint_color = "black";
+let paint_mode = "normal";
+let rainbow_color_index = 0;
 /**
  * Add all necessary events to the specified nodes.
  * - Clicking on canvas for painting
  * - Clicking on clear button to clear canvas
  * - Clicking on resolution button to change resolution
  * - Input change on color picker to change paint color
+ * - Choice between normal and rainbow mode
  */
 function bind_events() {
    // allow painting only if mouse button is being pressed down
    canvas_node.addEventListener("mousedown", (event) => {
       is_painting = true;
+      //color canvas -> refactor with hover
       event.target.style.backgroundColor = paint_color;
    });
    canvas_node.addEventListener("mouseup", () => {
@@ -64,6 +71,19 @@ function bind_events() {
    // change color through color picker
    color_picker.addEventListener("input", (event) => {
       paint_color = event.target.value;
+   });
+
+   // normal coloring with color picker
+   normal_mode_choice.addEventListener("input", () => {
+      color_picker.disabled = false;
+      paint_mode = "normal";
+      paint_color = color_picker.value; //so that not the last rainbow color is used
+   });
+
+   // rainbow mode, so only set color in set order is used
+   rainbow_mode_choice.addEventListener("input", () => {
+      color_picker.disabled = true;
+      paint_mode = "rainbow";
    });
 }
 
@@ -202,8 +222,8 @@ function calc_min_dim(min_value, max_amount) {
  * @returns {{width: number, height: number}} Resolution in cells
  */
 function read_from_resolution_field() {
-   const width = read_from_field_as_number(resolution_width.IO);
-   const height = read_from_field_as_number(resolution_height.IO);
+   const width = read_from_input_as_number(resolution_width.IO);
+   const height = read_from_input_as_number(resolution_height.IO);
    return { width: width, height: height };
 }
 
@@ -214,7 +234,7 @@ function read_from_resolution_field() {
  * @returns {number}             The value converted into a number
  */
 
-function read_from_field_as_number(field) {
+function read_from_input_as_number(field) {
    return Number(field.value);
 }
 
@@ -308,9 +328,28 @@ function set_resolution(grid) {
 function add_paint_function_to_canvas() {
    Array.from(canvas_node.children).forEach((cell) => {
       cell.addEventListener("mouseover", (event) => {
+         if (paint_mode === "rainbow") {
+            paint_color = rainbow_color[rainbow_color_index];
+            rainbow_color_index = incerement_number(rainbow_color_index, rainbow_color.length - 1);
+         }
          if (is_painting) event.target.style.backgroundColor = paint_color;
       });
    });
+}
+
+/**
+ * Returns the number incremented within the allowed range
+ *
+ * @param {number} num     Current value of number
+ * @param {number} max     Max allowed number
+ * @param {number} [min=0] Lowest allowed number
+ * @returns {number}       the incremented number
+ */
+
+function incerement_number(num, max, min = 0) {
+   let number = num + 1;
+   if (number > max) number = min;
+   return number;
 }
 
 const clear_color = "white";

@@ -83,12 +83,18 @@ h1 {
    ========================================================================== */
 /*	Input for color */
 .color-picker {
-   border-width: 1px;
-   background-color: white;
+   border-width: 2px;
+   background-color: rgb(230, 230, 230);
+   border-color: rgb(92, 92, 92);
    display: block;
    margin: 20px auto;
    width: 75px;
    height: 75px;
+}
+
+.color-picker:disabled {
+   /* border-color: darkgrey; */
+   background-color: darkgray;
 }
 
 /* ==========================================================================
@@ -143,7 +149,7 @@ input.invalid-input {
 /*	Hover action
    ========================================================================== */
 
-.transform:hover {
+.transform:hover:enabled {
    transform: scale(1.2);
    transition-duration: 120ms;
 }
