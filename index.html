@@ -9,7 +9,9 @@
    <body>
       <main>
          <h1>Etch-A-Sketch</h1>
+         <!-- Upper toolbar-->
          <div class="toolbar-up">
+            <!-- Resolution input -->
             <input
                type="text"
                inputmode="numeric"
@@ -25,14 +27,18 @@
                name="cols"
                class="resolution-input"
             />
+            <!-- Apply resolution change -->
             <button id="resolution-btn">Apply</button>
+            <!-- Clear canvas -->
             <button id="clear-btn">Clear</button>
          </div>
 
          <div class="canvas-container">
+            <!-- Toolbar left -->
             <div class="side-toolbar">
-               <input class="color-picker transform" id="color-picker" type="color" />
-
+               <!-- Color picker to change paint color -->
+               <input class="color-picker transform-enabled" id="color-picker" type="color" />
+               <!-- Normal mode choice-->
                <div class="fit-content center">
                   <input
                      type="radio"
@@ -41,20 +47,22 @@
                      name="paint-mode"
                      checked
                   />
-                  <label for="normal-mode" class="vertical-rb transform">Normal</label>
+                  <label for="normal-mode" class="transform paint-mode">Normal</label>
                </div>
-
+               <!-- Rainbow mode choice -->
                <div class="fit-content center">
                   <input type="radio" id="rainbow-mode" class="toggle-buttons" name="paint-mode" />
-                  <label for="rainbow-mode" class="vertical-rb transform">Rainbow</label>
+                  <label for="rainbow-mode" class="transform paint-mode">Rainbow</label>
                </div>
             </div>
+            <!-- Canvas to be painted-->
             <div
                class="canvas"
                id="canvas"
                ondragstart="return false;"
                ondrop="return false;"
             ></div>
+            <!-- Toolbar right -->
             <div class="side-toolbar"></div>
          </div>
       </main>

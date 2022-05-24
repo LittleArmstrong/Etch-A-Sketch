@@ -92,11 +92,21 @@ h1 {
    height: 75px;
 }
 
+/* Make the color picker look locked if disabled */
 .color-picker:disabled {
    /* border-color: darkgrey; */
    background-color: darkgray;
 }
 
+/* Style the labels of mode choices */
+.paint-mode {
+   display: inline-block;
+   margin: 0 auto;
+   margin-bottom: 10px;
+   padding: 5px;
+   text-align: center;
+   width: 75px;
+}
 /* ==========================================================================
    Others
    ========================================================================== */
@@ -132,12 +142,6 @@ input.invalid-input {
 .toggle-buttons + label {
    background-color: rgb(230, 230, 230);
    border: 1px solid #333;
-   display: inline-block;
-   margin: 0 auto;
-   margin-bottom: 10px;
-   padding: 5px;
-   text-align: center;
-   width: 75px;
 }
 
 /* Outline the checked option */
@@ -146,10 +150,16 @@ input.invalid-input {
    font-weight: bold;
 }
 
-/*	Hover action
+/*	general hover actions
    ========================================================================== */
 
-.transform:hover:enabled {
+/* hover action for radio button labels because the below one didn't work */
+.transform:hover {
+   transform: scale(1.2);
+   transition-duration: 120ms;
+}
+/* Thise one didn't work with radio buttons  */
+.transform-enabled:hover:enabled {
    transform: scale(1.2);
    transition-duration: 120ms;
 }
