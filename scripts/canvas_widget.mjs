@@ -5,13 +5,13 @@ const resolution_width = {
    IO: $("#res-width"),
    limit: [1, 100],
    min_size: 1,
-   default: 60,
+   default: 16,
 };
 const resolution_height = {
    IO: $("#res-height"),
    limit: [1, 100],
    min_size: 1,
-   default: 60,
+   default: 16,
 };
 /**
  * Start widget:
@@ -35,6 +35,7 @@ const normal_mode_choice = $("#normal-mode");
 const rainbow_mode_choice = $("#rainbow-mode");
 const darkening_check = $("#darkening");
 
+let paint_color = "black";
 let is_painting = false;
 let is_darkening = false;
 let paint_mode = "normal";
@@ -50,7 +51,7 @@ function bind_events() {
    // allow painting only if mouse button is being pressed down
    canvas_node.addEventListener("mousedown", (event) => {
       is_painting = true;
-      paint_canvas(event.target, paint_color);
+      paint_cell(event.target, paint_mode);
    });
    canvas_node.addEventListener("mouseup", () => {
       is_painting = false;
@@ -69,14 +70,13 @@ function bind_events() {
    // change color through color picker
    color_picker.addEventListener("input", (event) => {
       const color = event.target.value;
-      set_color(color);
+      paint_color = color;
    });
 
    // normal coloring with color picker
    normal_mode_choice.addEventListener("input", () => {
       color_picker.disabled = false;
       paint_mode = "normal";
-      set_color(color_picker.value); //so that not the last rainbow color is used
    });
 
    // rainbow mode, so only set color in set order is used
@@ -89,17 +89,6 @@ function bind_events() {
    darkening_check.addEventListener("input", () => {
       is_darkening = !is_darkening;
    });
-}
-
-let paint_color = "rgb(0,0,0)"; //"black";, rgb or else the css color value is null
-/**
- * Set the color for painting the canvas.
- *
- * @param {string} color The css color
- */
-
-function set_color(color) {
-   paint_color = color;
 }
 
 /**
@@ -189,7 +178,7 @@ function change_resolution() {
    // replace the children of the canvas node with the children of newly created grid
    set_resolution(cell_colored_grid);
    // add the ability to paint the canvas through clicking, hovering and by changing the background color
-   add_paint_function_to_canvas();
+   add_paint_features_to_canvas();
    return ok(null);
 }
 
@@ -363,34 +352,79 @@ function set_resolution(grid) {
    canvas_node.replaceChildren(...grid.children);
 }
 
-const rainbow_color = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
-const darkening_percent = 10; //10%
+/**
+ * Add various features to the cell paint event (click+hover)
+ * - normal painting
+ * - rainbow mode
+ * - darkening present color
+ */
+function add_paint_features_to_canvas() {
+   Array.from(canvas_node.children).forEach((cell) => {
+      cell.addEventListener("mouseover", (event) => {
+         paint_cell(event.target, paint_mode);
+      });
+   });
+}
+
+const paint_canvas = {
+   darkening: 10, //10%
+   is_painting: false,
+   is_darkening: false,
+   paint_color: "black",
+   paint_modes: new Set(["rainbow", "normal"]),
+   rainbow_colors: ["red", "orange", "yellow", "lightblue", "indigo", "violet"],
+   rainbow_color_index: 0,
+   paint_cell(cell) {
+      //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
+      let color = this.paint_color; // to not change the chosen paint color, only for current cell
+      if (this.paint_mode === "rainbow") {
+         color = this.rainbow_colors[this.rainbow_color_index];
+         this.rainbow_color_index = incerement_number(
+            this.rainbow_color_index,
+            this.rainbow_colors.length - 1
+         );
+      }
+      //if darkening is checked, then set the color to a darkened version of the current cell
+      //only darken if the background isn't white <- comment out below condition for taht
+      const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
+      if (this.is_darkening) {
+         // && current_color !== "rgb(255, 255, 255)"
+         color = darken(current_color, darkening_percent);
+      }
+
+      //if the mouse button is being held down then paint the canvas / pixel cell
+      if (this.is_painting) cell.style.backgroundColor = color;
+   },
+};
+
 let rainbow_color_index = 0; //which color of the rainbow array should be used
 
 /**
- * Allow the painting on click over the canvas
+ * Change the background color of the element depending on various conditions like
+ * the paint mode.
+ *
+ * @param {HTMLElement} cell The cells (divs/pixels) of the canvas
  */
-function add_paint_function_to_canvas() {
-   Array.from(canvas_node.children).forEach((cell) => {
-      cell.addEventListener("mouseover", (event) => {
-         //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
-         if (paint_mode === "rainbow") {
-            paint_color = rainbow_color[rainbow_color_index];
-            rainbow_color_index = incerement_number(rainbow_color_index, rainbow_color.length - 1);
-         }
-         //if darkening is checked, then set the color to a darkened version of the current cell
-         const current_color = event.target.style.backgroundColor;
-         let color = paint_color; // to not change the chosen paint color, only for current cell
-         if (is_darkening) {
-            console.log(color);
-            color = darken(current_color, darkening_percent);
-            console.log(color);
-         }
 
-         //if the mouse button is being held down then paint the canvas / pixel cell
-         if (is_painting) paint_canvas(event.target, color);
-      });
-   });
+function paint_cell(cell, paint_mode) {
+   const rainbow_colors = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
+   const darkening_percent = 10; //10%
+   //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
+   let color = paint_color; // to not change the chosen paint color, only for current cell
+   if (paint_mode === "rainbow") {
+      color = rainbow_colors[rainbow_color_index];
+      rainbow_color_index = incerement_number(rainbow_color_index, rainbow_colors.length - 1);
+   }
+   //if darkening is checked, then set the color to a darkened version of the current cell
+   //only darken if the background isn't white <- comment out below condition for taht
+   const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
+   if (is_darkening) {
+      // && current_color !== "rgb(255, 255, 255)"
+      color = darken(current_color, darkening_percent);
+   }
+
+   //if the mouse button is being held down then paint the canvas / pixel cell
+   if (is_painting) cell.style.backgroundColor = color;
 }
 
 /**
@@ -408,7 +442,7 @@ function darken(rgb_string, percent) {
       const darker_color = color - (percent / 100) * max_rgb_value;
       return Math.max(darker_color, 0); //prevent negative numbers
    });
-   return `rgb(${darker_rgb[0]},${darker_rgb[0]},${darker_rgb[0]})`;
+   return `rgb(${darker_rgb[0]},${darker_rgb[1]},${darker_rgb[2]})`;
 }
 
 /**
@@ -426,7 +460,7 @@ function incerement_number(num, max, min = 0) {
    return number;
 }
 
-const clear_color = "rgb(255, 255, 255)"; //"white", rgb or else the css color value is null
+const clear_color = "white";
 /**
  * Fill the canvas with the specified color for clearing
  */
