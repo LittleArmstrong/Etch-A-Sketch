@@ -33,8 +33,10 @@ const clear_btn = $("#clear-btn");
 const color_picker = $("#color-picker");
 const normal_mode_choice = $("#normal-mode");
 const rainbow_mode_choice = $("#rainbow-mode");
+const darkening_check = $("#darkening");
 
 let is_painting = false;
+let is_darkening = false;
 let paint_mode = "normal";
 /**
  * Add all necessary events to the specified nodes.
@@ -82,9 +84,14 @@ function bind_events() {
       color_picker.disabled = true;
       paint_mode = "rainbow";
    });
+
+   // darken color if passed in canvas
+   darkening_check.addEventListener("input", () => {
+      is_darkening = !is_darkening;
+   });
 }
 
-let paint_color = "black";
+let paint_color = "rgb(0,0,0)"; //"black";, rgb or else the css color value is null
 /**
  * Set the color for painting the canvas.
  *
@@ -178,8 +185,9 @@ function change_resolution() {
    const cell_size = calc_cell_size(resolution_result, canvas_size);
 
    const grid = create_grid(cell_amount, cell_size);
+   const cell_colored_grid = set_canvas_background_color(grid, clear_color); //specifically set, so that the css color value is not null
    // replace the children of the canvas node with the children of newly created grid
-   set_resolution(grid);
+   set_resolution(cell_colored_grid);
    // add the ability to paint the canvas through clicking, hovering and by changing the background color
    add_paint_function_to_canvas();
    return ok(null);
@@ -333,6 +341,20 @@ function create_grid(cell_amount, cell_size) {
 }
 
 /**
+ * Set the background color of all the child elements / cells of the node / canvas
+ *
+ * @param {HTMLElement} canvas   The node with child elements
+ * @param {string} color         CSS Color
+ */
+function set_canvas_background_color(canvas, color) {
+   const new_canvas = canvas.cloneNode(true);
+   Array.from(new_canvas.children).forEach((cell) => {
+      cell.style.backgroundColor = color;
+   });
+   return new_canvas;
+}
+
+/**
  * Replace the children of the canvas node with the provided ones
  *
  * @param {HTMLElement} grid  div with child elements
@@ -342,6 +364,7 @@ function set_resolution(grid) {
 }
 
 const rainbow_color = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
+const darkening_percent = 10; //10%
 let rainbow_color_index = 0; //which color of the rainbow array should be used
 
 /**
@@ -355,10 +378,37 @@ function add_paint_function_to_canvas() {
             paint_color = rainbow_color[rainbow_color_index];
             rainbow_color_index = incerement_number(rainbow_color_index, rainbow_color.length - 1);
          }
+         //if darkening is checked, then set the color to a darkened version of the current cell
+         const current_color = event.target.style.backgroundColor;
+         let color = paint_color; // to not change the chosen paint color, only for current cell
+         if (is_darkening) {
+            console.log(color);
+            color = darken(current_color, darkening_percent);
+            console.log(color);
+         }
+
          //if the mouse button is being held down then paint the canvas / pixel cell
-         if (is_painting) paint_canvas(event.target, paint_color);
+         if (is_painting) paint_canvas(event.target, color);
       });
    });
+}
+
+/**
+ * Returns a darkened version of the given color depending on the given percent.
+ *
+ * @param {string} color      String in the form "rgb(x,x,x)"
+ * @param {number} percent    Percent as an integer
+ * @returns {string}          a string in the form "rgb(x,x,x)"
+ */
+
+function darken(rgb_string, percent) {
+   const max_rgb_value = 255;
+   const rgb = rgb_string.match(/\d{1,3}/g); //parse the string to an array [r,g,b]
+   const darker_rgb = rgb.map((color) => {
+      const darker_color = color - (percent / 100) * max_rgb_value;
+      return Math.max(darker_color, 0); //prevent negative numbers
+   });
+   return `rgb(${darker_rgb[0]},${darker_rgb[0]},${darker_rgb[0]})`;
 }
 
 /**
@@ -376,7 +426,7 @@ function incerement_number(num, max, min = 0) {
    return number;
 }
 
-const clear_color = "white";
+const clear_color = "rgb(255, 255, 255)"; //"white", rgb or else the css color value is null
 /**
  * Fill the canvas with the specified color for clearing
  */

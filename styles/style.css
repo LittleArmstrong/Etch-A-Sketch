@@ -96,25 +96,25 @@ h1 {
 .color-picker:disabled {
    /* border-color: darkgrey; */
    background-color: darkgray;
+   color: rgb(0, 128, 109);
 }
 
 /* Style the labels of mode choices */
-.paint-mode {
+.menu-btn-left {
    display: inline-block;
-   margin: 0 auto;
    margin-bottom: 10px;
    padding: 5px;
    text-align: center;
-   width: 75px;
+   width: 85px;
 }
 /* ==========================================================================
-   Others
+   General styling
    ========================================================================== */
-
+/* Make width as wide as content */
 .fit-content {
    width: fit-content;
 }
-
+/* simple horizontal centering inside a container, best used with fit-content */
 .center {
    margin: 0 auto;
 }
@@ -129,7 +129,7 @@ input.invalid-input {
    outline-color: red;
 }
 
-/*	Radio buttons
+/*	Radio buttons without buttons
    ========================================================================== */
 
 /* Remove the buttons */
@@ -150,7 +150,7 @@ input.invalid-input {
    font-weight: bold;
 }
 
-/*	general hover actions
+/*	General hover actions
    ========================================================================== */
 
 /* hover action for radio button labels because the below one didn't work */
