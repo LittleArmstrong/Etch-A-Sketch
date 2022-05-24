@@ -33,12 +33,9 @@ const clear_btn = $("#clear-btn");
 const color_picker = $("#color-picker");
 const normal_mode_choice = $("#normal-mode");
 const rainbow_mode_choice = $("#rainbow-mode");
-const rainbow_color = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
 
 let is_painting = false;
-let paint_color = "black";
 let paint_mode = "normal";
-let rainbow_color_index = 0;
 /**
  * Add all necessary events to the specified nodes.
  * - Clicking on canvas for painting
@@ -51,8 +48,7 @@ function bind_events() {
    // allow painting only if mouse button is being pressed down
    canvas_node.addEventListener("mousedown", (event) => {
       is_painting = true;
-      //color canvas -> refactor with hover
-      event.target.style.backgroundColor = paint_color;
+      paint_canvas(event.target, paint_color);
    });
    canvas_node.addEventListener("mouseup", () => {
       is_painting = false;
@@ -70,14 +66,15 @@ function bind_events() {
 
    // change color through color picker
    color_picker.addEventListener("input", (event) => {
-      paint_color = event.target.value;
+      const color = event.target.value;
+      set_color(color);
    });
 
    // normal coloring with color picker
    normal_mode_choice.addEventListener("input", () => {
       color_picker.disabled = false;
       paint_mode = "normal";
-      paint_color = color_picker.value; //so that not the last rainbow color is used
+      set_color(color_picker.value); //so that not the last rainbow color is used
    });
 
    // rainbow mode, so only set color in set order is used
@@ -85,6 +82,28 @@ function bind_events() {
       color_picker.disabled = true;
       paint_mode = "rainbow";
    });
+}
+
+let paint_color = "black";
+/**
+ * Set the color for painting the canvas.
+ *
+ * @param {string} color The css color
+ */
+
+function set_color(color) {
+   paint_color = color;
+}
+
+/**
+ * Change the background color of the given node/div (pixel) to the given color.
+ *
+ * @param {HTMLElement} pixel    The node/div acting as a pixel/cell
+ * @param {string} color         The css color
+ */
+
+function paint_canvas(pixel, color) {
+   pixel.style.backgroundColor = color;
 }
 
 /**
@@ -322,17 +341,22 @@ function set_resolution(grid) {
    canvas_node.replaceChildren(...grid.children);
 }
 
+const rainbow_color = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
+let rainbow_color_index = 0; //which color of the rainbow array should be used
+
 /**
  * Allow the painting on click over the canvas
  */
 function add_paint_function_to_canvas() {
    Array.from(canvas_node.children).forEach((cell) => {
       cell.addEventListener("mouseover", (event) => {
+         //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
          if (paint_mode === "rainbow") {
             paint_color = rainbow_color[rainbow_color_index];
             rainbow_color_index = incerement_number(rainbow_color_index, rainbow_color.length - 1);
          }
-         if (is_painting) event.target.style.backgroundColor = paint_color;
+         //if the mouse button is being held down then paint the canvas / pixel cell
+         if (is_painting) paint_canvas(event.target, paint_color);
       });
    });
 }
