@@ -31,6 +31,7 @@ export default function SketchWidget() {
 let paint_color = "black";
 let is_painting = false;
 let is_darkening = false;
+let is_darkening_bg = false;
 let paint_mode = "normal";
 /**
  * Add all necessary events to the specified nodes.
@@ -87,6 +88,12 @@ function bind_events() {
    const darkening_check = $("#darkening-check");
    darkening_check.addEventListener("input", () => {
       is_darkening = !is_darkening;
+      darkening_bg_check.disabled = !is_darkening;
+   });
+
+   const darkening_bg_check = $("#darkening-bg-check");
+   darkening_bg_check.addEventListener("input", () => {
+      is_darkening_bg = !is_darkening_bg;
    });
 }
 
@@ -162,7 +169,7 @@ function change_resolution() {
    const cell_size = calc_cell_size(resolution_result, canvas_size);
 
    const grid = create_grid(cell_amount, cell_size);
-   const cell_colored_grid = set_canvas_background_color(grid, clear_color); //specifically set, so that the css color value is not null
+   const cell_colored_grid = set_canvas_background_color(grid, background_color); //specifically set, so that the css color value is not null
    // replace the children of the canvas node with the children of newly created grid
    set_resolution(cell_colored_grid);
    // add the ability to paint the canvas through clicking, hovering and by changing the background color
@@ -371,7 +378,10 @@ function paint_cell(cell) {
       }
       if (is_darkening) {
          // if darkening is checked, then set the color to a darkened version of the current cell
-         color = get_darker_color(cell);
+         const current_color = window.getComputedStyle(cell).backgroundColor;
+         //check if the background should be darkened too
+         if (is_darkening_bg || current_color !== "rgb(255, 255, 255)")
+            color = get_darker_color(current_color);
       }
       cell.style.backgroundColor = color; // paint the cell
    }
@@ -396,11 +406,9 @@ function get_next_rainbow_color(index) {
  * @param {HTMLElement} cell  The cell of which the background color should be darkened
  * @returns {string}          a css color as string in the form "rgb(x,x,x)"
  */
-
-function get_darker_color(cell) {
+function get_darker_color(color) {
    const darkening_percent = 10; //10%
-   const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
-   return darken(current_color, darkening_percent);
+   return darken(color, darkening_percent);
 }
 
 /**
@@ -436,13 +444,13 @@ function incerement_number(num, max, min = 0) {
    return number;
 }
 
-const clear_color = "white";
+const background_color = "white";
 /**
  * Fill the canvas with the specified color for clearing
  */
 function clear() {
    Array.from(canvas_node.children).forEach((cell) => {
-      cell.style.backgroundColor = clear_color;
+      cell.style.backgroundColor = background_color;
    });
 }
 

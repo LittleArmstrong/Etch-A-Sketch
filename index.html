@@ -9,55 +9,48 @@
    <body>
       <main>
          <h1>Etch-A-Sketch</h1>
-         <!-- Upper toolbar-->
-         <div class="toolbar-up">
-            <!-- Resolution input -->
-            <input
-               type="text"
-               inputmode="numeric"
-               id="res-height"
-               name="rows"
-               class="resolution-input"
-            />
-            <span> x </span>
-            <input
-               type="text"
-               inputmode="numeric"
-               id="res-width"
-               name="cols"
-               class="resolution-input"
-            />
-            <!-- Apply resolution change -->
-            <button id="resolution-btn">Apply</button>
-            <!-- Clear canvas -->
-            <button id="clear-btn">Clear</button>
-         </div>
-
          <div class="canvas-container">
             <!-- Toolbar left -->
             <div class="side-toolbar">
                <!-- Color picker to change paint color -->
-               <input class="color-picker transform-enabled" id="color-picker" type="color" />
-               <!-- Normal mode choice-->
-               <div class="fit-content center">
-                  <input
-                     type="radio"
-                     id="normal-mode"
-                     class="toggle-buttons"
-                     name="paint-mode"
-                     checked
-                  />
-                  <label for="normal-mode" class="transform menu-btn-left">Normal</label>
-               </div>
-               <!-- Rainbow mode choice -->
-               <div class="fit-content center">
-                  <input type="radio" id="rainbow-mode" class="toggle-buttons" name="paint-mode" />
-                  <label for="rainbow-mode" class="transform menu-btn-left">Rainbow</label>
-               </div>
-               <!-- Darkening of color-->
-               <div class="fit-content center">
-                  <input type="checkbox" id="darkening-check" class="toggle-buttons" />
-                  <label for="darkening-check" class="transform menu-btn-left">Darkening</label>
+               <div class="flex col center">
+                  <input class="color-picker transform-enabled" id="color-picker" type="color" />
+                  <!-- Normal mode choice-->
+                  <input type="radio" id="normal-mode" class="rem-btn" name="paint-mode" checked />
+                  <label for="normal-mode" class="transform tbl-btn">Normal</label>
+                  <!-- Rainbow mode choice -->
+                  <input type="radio" id="rainbow-mode" class="rem-btn" name="paint-mode" />
+                  <label for="rainbow-mode" class="transform tbl-btn">Rainbow</label>
+                  <!-- Darkening of color-->
+                  <input type="checkbox" id="darkening-check" class="rem-btn" />
+                  <label for="darkening-check" class="transform tbl-btn">Darkening</label>
+                  <!-- Darkening of background check-->
+                  <span>Darken BG</span>
+                  <!-- start disabled, because darkening is first off-->
+                  <input type="checkbox" id="darkening-bg-check" class="rem-btn" disabled />
+                  <label for="darkening-bg-check" class="tbl-switch"></label>
+                  <!-- Clear canvas -->
+                  <button id="clear-btn" class="transform tbl-btn">Clear</button>
+                  <!-- Resolution input -->
+                  <div>
+                     <input
+                        type="text"
+                        inputmode="numeric"
+                        id="res-height"
+                        name="rows"
+                        class="resolution-input"
+                     />
+                     <span> x </span>
+                     <input
+                        type="text"
+                        inputmode="numeric"
+                        id="res-width"
+                        name="cols"
+                        class="resolution-input"
+                     />
+                  </div>
+                  <!-- Apply resolution change -->
+                  <button id="resolution-btn" class="transform tbl-btn">Apply</button>
                </div>
             </div>
             <!-- Canvas to be painted-->
