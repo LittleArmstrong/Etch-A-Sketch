@@ -28,13 +28,6 @@ export default function SketchWidget() {
    change_resolution();
 }
 
-const resolution_btn = $("#resolution-btn");
-const clear_btn = $("#clear-btn");
-const color_picker = $("#color-picker");
-const normal_mode_choice = $("#normal-mode");
-const rainbow_mode_choice = $("#rainbow-mode");
-const darkening_check = $("#darkening");
-
 let paint_color = "black";
 let is_painting = false;
 let is_darkening = false;
@@ -51,55 +44,50 @@ function bind_events() {
    // allow painting only if mouse button is being pressed down
    canvas_node.addEventListener("mousedown", (event) => {
       is_painting = true;
-      paint_cell(event.target, paint_mode);
+      paint_cell(event.target);
    });
    canvas_node.addEventListener("mouseup", () => {
       is_painting = false;
    });
 
    // add reize function to resize button ("Apply")
+   const resolution_btn = $("#resolution-btn");
    resolution_btn.addEventListener("click", () => {
       change_resolution();
    });
 
    // add clear function to clear button ("Clear")
+   const clear_btn = $("#clear-btn");
    clear_btn.addEventListener("click", () => {
       clear();
    });
 
    // change color through color picker
+   const color_picker = $("#color-picker");
    color_picker.addEventListener("input", (event) => {
       const color = event.target.value;
       paint_color = color;
    });
 
    // normal coloring with color picker
+   const normal_mode_choice = $("#normal-mode");
    normal_mode_choice.addEventListener("input", () => {
       color_picker.disabled = false;
       paint_mode = "normal";
    });
 
    // rainbow mode, so only set color in set order is used
+   const rainbow_mode_choice = $("#rainbow-mode");
    rainbow_mode_choice.addEventListener("input", () => {
       color_picker.disabled = true;
       paint_mode = "rainbow";
    });
 
    // darken color if passed in canvas
+   const darkening_check = $("#darkening-check");
    darkening_check.addEventListener("input", () => {
       is_darkening = !is_darkening;
    });
-}
-
-/**
- * Change the background color of the given node/div (pixel) to the given color.
- *
- * @param {HTMLElement} pixel    The node/div acting as a pixel/cell
- * @param {string} color         The css color
- */
-
-function paint_canvas(pixel, color) {
-   pixel.style.backgroundColor = color;
 }
 
 /**
@@ -361,70 +349,58 @@ function set_resolution(grid) {
 function add_paint_features_to_canvas() {
    Array.from(canvas_node.children).forEach((cell) => {
       cell.addEventListener("mouseover", (event) => {
-         paint_cell(event.target, paint_mode);
+         paint_cell(event.target);
       });
    });
 }
 
-const paint_canvas = {
-   darkening: 10, //10%
-   is_painting: false,
-   is_darkening: false,
-   paint_color: "black",
-   paint_modes: new Set(["rainbow", "normal"]),
-   rainbow_colors: ["red", "orange", "yellow", "lightblue", "indigo", "violet"],
-   rainbow_color_index: 0,
-   paint_cell(cell) {
-      //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
-      let color = this.paint_color; // to not change the chosen paint color, only for current cell
-      if (this.paint_mode === "rainbow") {
-         color = this.rainbow_colors[this.rainbow_color_index];
-         this.rainbow_color_index = incerement_number(
-            this.rainbow_color_index,
-            this.rainbow_colors.length - 1
-         );
-      }
-      //if darkening is checked, then set the color to a darkened version of the current cell
-      //only darken if the background isn't white <- comment out below condition for taht
-      const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
-      if (this.is_darkening) {
-         // && current_color !== "rgb(255, 255, 255)"
-         color = darken(current_color, darkening_percent);
-      }
-
-      //if the mouse button is being held down then paint the canvas / pixel cell
-      if (this.is_painting) cell.style.backgroundColor = color;
-   },
-};
-
 let rainbow_color_index = 0; //which color of the rainbow array should be used
-
 /**
  * Change the background color of the element depending on various conditions like
  * the paint mode.
  *
  * @param {HTMLElement} cell The cells (divs/pixels) of the canvas
  */
+function paint_cell(cell) {
+   if (is_painting) {
+      // if the mouse button is being held down then paint the canvas / pixel cell
+      let color = paint_color; // to not change the chosen paint color, only for current cell
+      if (paint_mode === "rainbow") {
+         // if rainbow mode is on, iterate the rainbow colors one by one after every one cell
+         [color, rainbow_color_index] = get_next_rainbow_color(rainbow_color_index);
+      }
+      if (is_darkening) {
+         // if darkening is checked, then set the color to a darkened version of the current cell
+         color = get_darker_color(cell);
+      }
+      cell.style.backgroundColor = color; // paint the cell
+   }
+}
 
-function paint_cell(cell, paint_mode) {
+/**
+ * Get the rainbow color based on the index and the incremented index for the next rainbow color
+ *
+ * @param {number} index The index with which to choose the rainbow color from an array
+ * @returns {[string, number]} the color and incremented index in an array
+ */
+function get_next_rainbow_color(index) {
    const rainbow_colors = ["red", "orange", "yellow", "lightblue", "indigo", "violet"];
-   const darkening_percent = 10; //10%
-   //if rainbow mode is on, iterate the rainbow colors one by one after every one cell
-   let color = paint_color; // to not change the chosen paint color, only for current cell
-   if (paint_mode === "rainbow") {
-      color = rainbow_colors[rainbow_color_index];
-      rainbow_color_index = incerement_number(rainbow_color_index, rainbow_colors.length - 1);
-   }
-   //if darkening is checked, then set the color to a darkened version of the current cell
-   //only darken if the background isn't white <- comment out below condition for taht
-   const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
-   if (is_darkening) {
-      // && current_color !== "rgb(255, 255, 255)"
-      color = darken(current_color, darkening_percent);
-   }
+   const current_color = rainbow_colors[index];
+   const next_color_index = incerement_number(index, rainbow_colors.length - 1);
+   return [current_color, next_color_index];
+}
 
-   //if the mouse button is being held down then paint the canvas / pixel cell
-   if (is_painting) cell.style.backgroundColor = color;
+/**
+ * Return a darker version of the background color of the given cell by a certain percentage
+ *
+ * @param {HTMLElement} cell  The cell of which the background color should be darkened
+ * @returns {string}          a css color as string in the form "rgb(x,x,x)"
+ */
+
+function get_darker_color(cell) {
+   const darkening_percent = 10; //10%
+   const current_color = window.getComputedStyle(cell).backgroundColor; //to get color in rgb form;
+   return darken(current_color, darkening_percent);
 }
 
 /**
@@ -432,7 +408,7 @@ function paint_cell(cell, paint_mode) {
  *
  * @param {string} color      String in the form "rgb(x,x,x)"
  * @param {number} percent    Percent as an integer
- * @returns {string}          a string in the form "rgb(x,x,x)"
+ * @returns {string}          a css color as string in the form "rgb(x,x,x)"
  */
 
 function darken(rgb_string, percent) {
