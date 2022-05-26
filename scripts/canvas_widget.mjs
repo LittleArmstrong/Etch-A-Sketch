@@ -30,6 +30,7 @@ export default function SketchWidget() {
 
 let paint_color = "black";
 let is_painting = false;
+let is_clearing = false;
 let is_darkening = false;
 let is_darkening_bg = false;
 let paint_mode = "normal";
@@ -44,11 +45,13 @@ let paint_mode = "normal";
 function bind_events() {
    // allow painting only if mouse button is being pressed down
    canvas_node.addEventListener("mousedown", (event) => {
-      is_painting = true;
+      if (event.button === 0) is_painting = true; // left click for painting
+      else if (event.button === 2) is_clearing = true; // right click for clearing
       paint_cell(event.target);
    });
-   canvas_node.addEventListener("mouseup", () => {
-      is_painting = false;
+   canvas_node.addEventListener("mouseup", (event) => {
+      if (event.button === 0) is_painting = false; // left click for painting
+      else if (event.button === 2) is_clearing = false; // right click for clearing
    });
 
    // add reize function to resize button ("Apply")
@@ -380,11 +383,11 @@ function paint_cell(cell) {
          // if darkening is checked, then set the color to a darkened version of the current cell
          const current_color = window.getComputedStyle(cell).backgroundColor;
          //check if the background should be darkened too
-         if (is_darkening_bg || current_color !== "rgb(255, 255, 255)")
+         if (is_darkening_bg || current_color !== background_color)
             color = get_darker_color(current_color);
       }
       cell.style.backgroundColor = color; // paint the cell
-   }
+   } else if (is_clearing) cell.style.backgroundColor = background_color; // paint the cell
 }
 
 /**
@@ -444,7 +447,7 @@ function incerement_number(num, max, min = 0) {
    return number;
 }
 
-const background_color = "white";
+const background_color = "rgb(255, 255, 255)"; // "white"; rgb value, because that's used for comparisons
 /**
  * Fill the canvas with the specified color for clearing
  */
